@@ -1,2 +1,2 @@
 # JournalPublication
-This repository holds the pre-print version of the paper submitted to Reliability and System Safety Journal.
+The PDF file is the paper manuscript that was submitted to the 'Reliability and System Safety' journal. This project is based on applications of Machine Learning and involves utilizing various classification algorithms like Support Vector Machines, Random Forests, Decision Trees, Discriminant Analysis, and Logistic Regression to determine the vulnerability of the corroded pipeline under fluid hammer pressure surge. This is an extension of the project that can be found under the 'conference publication' repository. 
