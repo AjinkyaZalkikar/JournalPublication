@@ -1,0 +1,65 @@
+---
+title: "Neural Network V2"
+author: "Ajinkya Zalkikar"
+date: "11/7/2021"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd("C:/ALL FILES/ISEN/SPRING 21/Research Project/1. Fluid Hammer Effect Project/RAMS Paper Drafts/Spreadsheets")
+newdat=read.csv(file="project2_doeresults_v2.csv")
+library(ISLR)
+library(glmnet)
+set.seed(1)
+attach(newdat)
+```
+
+
+```{r}
+normal=function(x){return((x-min(x))/(max(x)-min(x)))}
+normdat=as.data.frame(lapply(newdat,normal))
+training=sample(2500,2000)
+train=normdat[training,]
+test=normdat[-training,]
+```
+
+```{r}
+library(neuralnet)
+BPNN=neuralnet(surge~flow+velo+dia+t+mat,data=train,hidden=c(5,3),linear.output = TRUE, threshold = 0.0001,stepmax = 1e+06)
+plot(BPNN,rep="best")
+```
+
+```{r}
+pred=predict(BPNN,newdata=test)
+results=data.frame(actual= test$surge, prediction = pred)
+predicted=results$prediction*abs(diff(range(surge)))+min(surge)
+actual=results$actual*abs(diff(range(surge)))+min(surge)
+sqrt(mean((actual-predicted)^2))
+```
+
+```{r}
+library(neuralnet)
+BPNN2=neuralnet(burst~dep+len+dia+t+mat,data=train,hidden=c(5,3),linear.output = TRUE, threshold = 0.001,stepmax = 1e+06)
+plot(BPNN2,rep="best")
+```
+
+```{r}
+pred=predict(BPNN2,newdata=test)
+results=data.frame(actual= test$burst, prediction = pred)
+predicted=results$prediction*abs(diff(range(burst)))+min(burst)
+actual=results$actual*abs(diff(range(burst)))+min(burst)
+sqrt(mean((actual-predicted)^2))
+```
+
+```{r}
+library(neuralnet)
+BPNN3=neuralnet(status~dep+len+dia+t+mat+flow+velo,data=train,hidden=c(5,3),linear.output = FALSE, threshold = 0.001,stepmax = 1e+06)
+plot(BPNN3,rep="best")
+```
+
+```{r}
+pred=predict(BPNN3,newdata=test)
+table(test$status==1,pred[,1]>0.5)
+```

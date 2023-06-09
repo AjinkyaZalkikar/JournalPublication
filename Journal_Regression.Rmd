@@ -1,0 +1,50 @@
+---
+title: "ML Regression Journal"
+author: "Ajinkya Zalkikar"
+date: "3/7/2022"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd("C:/ALL FILES/ISEN/SPRING 21/Research Project/1. Fluid Hammer Effect Project/RAMS Paper Drafts/Spreadsheets")
+library(ISLR)
+library(MASS)
+set.seed(1)
+dataset=read.csv(file="journal_regression.csv")
+attach(dataset)
+train=sample(5000,4000)
+test=dataset[-train,]
+test_y=ratio[-train]
+```
+
+
+```{r}
+cor(dataset)
+cor(dataset[,1:7])
+plot(dataset,upper.panel=NULL)
+surgemean = mean(surge)
+burstmean = mean(burst)
+```
+
+
+
+```{r}
+#Linear Regression
+linreg = lm(burst~poly(dia,7)+t+poly(mat,2)+I(dep^3)+dep+I(dep*t)+I(dep*mat)+ I(dep*dia)+ I(dia*t)+ I(t*mat)+I(dia*mat), data = dataset, subset = train)
+summary(linreg)
+linreg2 = lm(surge~flow+poly(dia,2)+poly(t,2)+velo+mat, data = dataset, subset = train)
+summary(linreg2)
+pred = predict(linreg,newdata = test)
+pred2 = predict(linreg2,newdata = test)
+```
+
+```{r}
+a = sqrt(mean((pred - test$burst)^2))
+a
+a/burstmean*100
+b = sqrt(mean((pred2 - test$surge)^2))
+b
+b/surgemean*100 
+```

@@ -1,0 +1,99 @@
+---
+title: "ML Models - Journal"
+author: "Ajinkya Zalkikar"
+date: "11/29/2021"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd("C:/ALL FILES/ISEN/SPRING 21/Research Project/1. Fluid Hammer Effect Project/RAMS Paper Drafts/Spreadsheets")
+library(ISLR)
+library(MASS)
+set.seed(1)
+dataset=read.csv(file="projectfinal.csv")
+attach(dataset)
+train=sample(5000,4000)
+test=dataset[-train,]
+test_y=STATUS[-train]
+
+set.seed(1)
+lda.fit=lda(STATUS~flow+velo+dia+t+mat+dep+len,data=dataset, subset = train)
+
+#LDA Results
+summary(lda.fit)
+lda.fit
+plot(lda.fit)
+lda.pred=predict(lda.fit,test)
+table.lda=table(test_y,lda.pred$class)
+table.lda
+ldaaccuracy=sum(diag(table.lda))/sum(table.lda)
+ldaaccuracy
+
+#Decision Trees
+
+#5 Variables
+
+set.seed(1)
+library(rpart.plot)
+treefit=rpart(STATUS~flow+velo+dia+t+mat+dep+len,data=dataset,subset=train, method='class')
+rpart.plot(treefit,extra=104)
+predict.tree=predict(treefit, data=test, type='class')
+#tabletree=table(test_y,predict.tree)
+#treeaccuracy=sum(diag(tabletree))/sum(tabletree)
+#treeaccuracy
+
+
+#randomforest(bagging)
+
+#5 Variables
+set.seed(1)
+library(randomForest)
+bagtree=randomForest(as.factor(STATUS)~flow+velo+dia+t+mat+dep+len,data=dataset,subset=train,mtry=5,importance=TRUE)
+bagtree
+predictrf=predict(bagtree,newdata=test)
+table.rf=table(test_y,predictrf)
+table.rf
+rfaccuracy=sum(diag(table.rf))/sum(table.rf)
+rfaccuracy
+
+
+
+#SVM Radial 
+
+#5 Variables
+library(e1071)
+set.seed(1)
+tune.out=tune(svm, as.factor(STATUS)~dia+flow+velo+t+mat+dep+len,data=dataset[train,],kernel="radial",ranges=list(cost=c(0.1,1,10,100,1000),gamma=c(0.5,1,2,3,4,5)))
+summary(tune.out)
+
+library(e1071)
+svmfit=svm(as.factor(STATUS)~flow+dia+t+velo+mat+dep+len,data = dataset, subset= train, kernel='radial', cost=1000, gamma = 2)
+svmfit
+summary(svmfit)
+svmpred=predict(svmfit,test)
+table.svm=table(predict=svmpred,truth=test_y)
+table.svm
+svmaccuracy=sum(diag(table.svm))/sum(table.svm)
+svmaccuracy
+
+
+
+#SVM Polynomial
+
+#5 Variables
+set.seed(1)
+tune.out=tune(svm, as.factor(STATUS)~flow+dia+t+velo+mat+dep+len,data=dataset[train,],kernel="polynomial",ranges=list(cost=c(0.1,1,10,100,1000),d=c(1,2,3,4,5,6)))
+summary(tune.out)
+
+library(e1071)
+svmfit=svm(as.factor(STATUS)~flow+dia+t+velo+mat+dep+len,data = dataset, subset= train, kernel='polynomial', cost=1000, d = 3)
+svmfit
+summary(svmfit)
+svmpred=predict(svmfit,test)
+table.svm=table(predict=svmpred,truth=test_y)
+table.svm
+svmaccuracy=sum(diag(table.svm))/sum(table.svm)
+svmaccuracy
+```
